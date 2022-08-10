@@ -139,6 +139,8 @@ class Instance(object):
         self.results_history = []
         self._mapping = None
         self._domain = None
+        self.num_failures = 0
+        self.num_successes = 0
         self.reset()
     @property
     def info(self):

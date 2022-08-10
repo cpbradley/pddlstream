@@ -219,7 +219,6 @@ class StreamInstance(Instance):
         self.opt_gens = len(self.opt_gen_fns)*[None]
         self._axiom_predicate = None
         self._disabled_axiom = None
-        self.num_failures = 0
         # TODO: keep track of unique outputs to prune repeated ones
 
     def _check_output_values(self, new_values):
@@ -325,9 +324,11 @@ class StreamInstance(Instance):
         #if self.external.is_test and self.successful:
         #    # Set of possible test stream outputs is exhausted (excluding wild)
         #   self.enumerated = True
-        is_failure = bool(new_values)
+        is_failure = not bool(new_values)
         if is_failure:
             self.num_failures += 1
+        else:
+            self.num_successes += 1
         return new_results, new_facts
 
     #########################
