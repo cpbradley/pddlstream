@@ -244,6 +244,15 @@ class Performance(object):
         sign = -1 if negate else +1
         return Stats(p_success=self.get_p_success(), overhead=sign * self.get_overhead())
     def dump_total(self):
+        for instance in self.instances:
+            inst = self.get_instance(*instance)
+            if inst.num_failures > 0:
+                print(f'Num Failures: {inst.num_failures}')
+            # print(f'Instance: {instance}')
+            # print(f'Instance: {self.get_instance(*instance)}')
+            # print(f'Results History: {self.get_instance(*instance).results_history}')
+            # print(f'History: {self.get_instance(*instance).history}')
+            # print(f'Result: {self.get_instance(*instance).previous_outputs}')
         print('External: {} | n: {:d} | p_success: {:.3f} | overhead: {:.3f}'.format(
             self.name, self.total_calls, self._estimate_p_success(), self._estimate_overhead()))
     def dump_online(self):
