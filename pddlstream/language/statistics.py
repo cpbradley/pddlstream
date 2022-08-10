@@ -248,6 +248,7 @@ class Performance(object):
             inst = self.get_instance(*instance)
             if inst.num_failures > 0:
                 print(f'Num Failures: {inst.num_failures}')
+                print(f'Num Successes: {inst.num_successes}')
             # print(f'Instance: {instance}')
             # print(f'Instance: {self.get_instance(*instance)}')
             # print(f'Results History: {self.get_instance(*instance).results_history}')
