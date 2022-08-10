@@ -224,6 +224,7 @@ class StreamInstance(Instance):
         self.opt_gens = len(self.opt_gen_fns)*[None]
         self._axiom_predicate = None
         self._disabled_axiom = None
+        self.num_failures = 0
         # TODO: keep track of unique outputs to prune repeated ones
 
     def _check_output_values(self, new_values):
@@ -306,6 +307,8 @@ class StreamInstance(Instance):
         start_time = time.time()
         start_history = len(self.history)
         new_values, new_facts = self._next_outputs()
+        print(new_values)
+        print(new_facts)
         self._check_output_values(new_values)
         self._check_wild_facts(new_facts)
         if verbose:
@@ -317,14 +320,19 @@ class StreamInstance(Instance):
         self.previous_outputs.update(new_objects) # Only counting new outputs as successes
         new_results = [self.get_result(output_objects, list_index=list_index, optimistic=False)
                        for list_index, output_objects in enumerate(new_objects)]
+        print(f'success: {[r.is_successful() for r in new_results]}')
         if start_history <= len(self.history) - 1:
             self.update_statistics(start_time, new_results)
         new_facts = list(map(obj_from_value_expression, new_facts))
+        print(f'results: {new_results}')
         self.successful |= any(r.is_successful() for r in new_results)
         self.num_calls += 1 # Must be after get_result
         #if self.external.is_test and self.successful:
         #    # Set of possible test stream outputs is exhausted (excluding wild)
         #   self.enumerated = True
+        is_failure = bool(new_values)
+        if is_failure:
+            self.num_failures += 1
         return new_results, new_facts
 
     #########################
