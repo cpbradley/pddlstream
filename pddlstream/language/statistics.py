@@ -6,6 +6,7 @@ import pickle
 from collections import Counter, namedtuple
 
 from pddlstream.language.constants import is_plan
+from pddlstream.language.object import Object
 from pddlstream.utils import INF, read_pickle, ensure_dir, write_pickle, get_python_version
 
 LOAD_STATISTICS = True
@@ -45,15 +46,18 @@ def compute_plan_effort(stream_plan, **kwargs):
 
 # TODO: write to a "local" folder containing temp, data2, data3, visualizations
 
-def get_data_path(stream_name):
+def get_data_path(stream_name, instances=False):
     data_dir = DATA_DIR.format(get_python_version())
-    file_name = '{}.pkl'.format(stream_name)
+    if instances:
+        file_name = '{}_instances.pkl'.format(stream_name)
+    else:
+        file_name = '{}.pkl'.format(stream_name)
     return os.path.join(data_dir, file_name)
 
-def load_data(pddl_name):
+def load_data(pddl_name, instances=False):
     if not LOAD_STATISTICS:
         return {}
-    filename = get_data_path(pddl_name)
+    filename = get_data_path(pddl_name, instances=instances)
     if not os.path.exists(filename):
         return {}
     #try:
@@ -93,6 +97,42 @@ def dump_total_statistics(externals):
 
 ##################################################
 
+def collate_instance_data(external):
+    out = []
+    for instance in external.instances.values():
+        print(instance)
+        print(instance.results_history)
+        print(instance.num_failures)
+        for execution in instance.results_history:
+            if not execution:
+                continue
+            print(execution)
+            data = {}
+            for ob in instance.input_objects:
+                print(type(ob))
+                if isinstance(ob, Object):
+                    print(f'Value: {ob.value}')
+                    print(f'Value Type: {type(ob.value)}')
+                    print(f'Ob: {ob}')
+            data['inputs'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.input_objects]
+            if 'fluent_facts' in dir(instance):
+                data['fluents'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.fluent_facts]
+            if 'output_objects' in dir(execution[0]):
+                data['outputs'] = [obj.value if isinstance(obj, Object) else obj for obj in execution[0].output_objects]
+            else:
+                data['outputs'] = []
+            data['success'] = 1
+            out.append(data)
+        for _ in range(instance.num_failures):
+            data = {}
+            data['inputs'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.input_objects]
+            if 'fluent_facts' in dir(instance):
+                data['fluents'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.fluent_facts]
+            data['outputs'] = []
+            data['success'] = 0
+            out.append(data)
+    return out
+
 def merge_data(external, previous_data):
     # TODO: compute distribution of successes given feasible
     # TODO: can estimate probability of success given feasible
@@ -123,6 +163,42 @@ def merge_data(external, previous_data):
         'distribution': combined_distribution,
     }
     # TODO: make an instance method
+
+def write_external_statistics(externals, verbose):
+    if not externals:
+        return
+    if verbose:
+        #dump_online_statistics(externals)
+        dump_total_statistics(externals)
+    pass
+    pddl_name = externals[0].pddl_name # TODO: ensure the same
+    previous_data = load_data(pddl_name)
+    previous_instances_data = load_data(pddl_name, instances=True)
+    data = {}
+    instances_data = {}
+    for external in externals:
+        if not hasattr(external, 'instances'):
+            continue # TODO: SynthesizerStreams
+        #total_calls = 0 # TODO: compute these values
+        previous_statistics = previous_data.get(external.name, {})
+        data[external.name] = merge_data(external, previous_statistics)
+        instances_data[external.name] = collate_instance_data(external)
+    instances_data.update(previous_instances_data)
+    
+
+    if not SAVE_STATISTICS:
+        return
+    filename = get_data_path(pddl_name)
+    instances_filename = get_data_path(pddl_name, instances=True)
+    ensure_dir(filename)
+    ensure_dir(instances_filename)
+    write_pickle(filename, data)
+    write_pickle(instances_filename, instances_data)
+    if verbose:
+        print('Wrote:', filename)
+        print('Wrote:', instances_filename)
+    print(instances_data)
+    assert False
 
 def write_stream_statistics(externals, verbose):
     # TODO: estimate conditional to affecting history on skeleton
@@ -244,16 +320,24 @@ class Performance(object):
         sign = -1 if negate else +1
         return Stats(p_success=self.get_p_success(), overhead=sign * self.get_overhead())
     def dump_total(self):
-        for instance in self.instances:
-            inst = self.get_instance(*instance)
-            if inst.num_failures > 0:
-                print(f'Num Failures: {inst.num_failures}')
-                print(f'Num Successes: {inst.num_successes}')
-            # print(f'Instance: {instance}')
-            # print(f'Instance: {self.get_instance(*instance)}')
-            # print(f'Results History: {self.get_instance(*instance).results_history}')
-            # print(f'History: {self.get_instance(*instance).history}')
-            # print(f'Result: {self.get_instance(*instance).previous_outputs}')
+        # for instance in self.instances:
+        #     print(instance)
+        #     print(type(self))
+        #     if type(instance[0]) == tuple:
+        #         inst = self.get_instance(*instance)
+        #     else:
+        #         inst = self.get_instance(instance)
+        #     if inst.num_failures > 0:
+        #         print(f'Num Failures: {inst.num_failures}')
+        #         print(f'Num Successes: {inst.num_successes}')
+        #     print(f'Instance: {instance}')
+        #     print(f'Instance: {inst}')
+        #     print(f'Results History: {inst.results_history}')
+        #     print(f'History: {inst.history}')
+        #     if len(inst.results_history) > 0:
+        #         if len(inst.results_history[0]) > 0:
+        #             print(vars(inst.results_history[0][0]))
+        #     # print(f'Result: {inst.previous_outputs}')
         print('External: {} | n: {:d} | p_success: {:.3f} | overhead: {:.3f}'.format(
             self.name, self.total_calls, self._estimate_p_success(), self._estimate_overhead()))
     def dump_online(self):

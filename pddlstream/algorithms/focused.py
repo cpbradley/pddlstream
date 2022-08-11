@@ -23,7 +23,7 @@ from pddlstream.language.function import Function, Predicate
 from pddlstream.language.optimizer import ComponentStream
 from pddlstream.algorithms.recover_optimizers import combine_optimizers
 from pddlstream.language.statistics import load_stream_statistics, \
-    write_stream_statistics, compute_plan_effort
+    write_stream_statistics, compute_plan_effort, write_external_statistics
 from pddlstream.language.stream import Stream, StreamResult
 from pddlstream.utils import INF, implies, str_from_object, safe_zip
 
@@ -241,7 +241,8 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
     })
     print('Summary: {}'.format(str_from_object(summary, ndigits=3))) # TODO: return the summary
 
-    write_stream_statistics(externals, verbose)
+    # write_stream_statistics(externals, verbose)
+    write_external_statistics(externals, verbose)
     return store.extract_solution()
 
 solve_focused = solve_abstract # TODO: deprecate solve_focused

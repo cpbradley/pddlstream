@@ -1,3 +1,4 @@
+from multiprocessing.sharedctypes import Value
 import time
 
 from pddlstream.language.conversion import substitute_expression, list_from_conjunction, str_from_head
@@ -108,6 +109,12 @@ class FunctionInstance(Instance):
         if start_history <= len(self.history) - 1:
             self.update_statistics(start_time, new_results)
         self.successful |= any(r.is_successful() for r in new_results)
+
+        is_failure = not bool(value)
+        if is_failure:
+            self.num_failures += 1
+        else:
+            self.num_successes += 1
         return new_results, new_facts
     def next_optimistic(self):
         if self.enumerated or self.disabled:
