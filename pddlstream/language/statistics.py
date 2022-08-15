@@ -170,7 +170,6 @@ def write_external_statistics(externals, verbose):
     if verbose:
         #dump_online_statistics(externals)
         dump_total_statistics(externals)
-    pass
     pddl_name = externals[0].pddl_name # TODO: ensure the same
     previous_data = load_data(pddl_name)
     previous_instances_data = load_data(pddl_name, instances=True)
@@ -183,7 +182,12 @@ def write_external_statistics(externals, verbose):
         previous_statistics = previous_data.get(external.name, {})
         data[external.name] = merge_data(external, previous_statistics)
         instances_data[external.name] = collate_instance_data(external)
-    instances_data.update(previous_instances_data)
+    # instances_data.update(previous_instances_data)
+    for external_name in previous_instances_data:
+        if external_name in instances_data:
+            instances_data[external_name].extend(previous_instances_data[external_name])
+        else:
+            instances_data[external_name] = previous_instances_data[external_name]
     
 
     if not SAVE_STATISTICS:
@@ -195,6 +199,9 @@ def write_external_statistics(externals, verbose):
     write_pickle(filename, data)
     write_pickle(instances_filename, instances_data)
     if verbose:
+        print(len(instances_data))
+        import sys
+        print(sys.getsizeof(instances_data))
         print('Wrote:', filename)
         print('Wrote:', instances_filename)
     print(instances_data)
