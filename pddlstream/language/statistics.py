@@ -205,7 +205,6 @@ def write_external_statistics(externals, verbose):
         print('Wrote:', filename)
         print('Wrote:', instances_filename)
     print(instances_data)
-    assert False
 
 def write_stream_statistics(externals, verbose):
     # TODO: estimate conditional to affecting history on skeleton
