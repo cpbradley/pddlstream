@@ -141,6 +141,7 @@ class Instance(object):
         self._domain = None
         self.num_failures = 0
         self.num_successes = 0
+        self.failure_costs = []
         self.reset()
     @property
     def info(self):
@@ -229,6 +230,8 @@ class Instance(object):
         successes = sum(r.is_successful() for r in results)
         self.external.update_statistics(overhead, bool(successes))
         self.results_history.append(results)
+        if not results:
+            self.failure_costs.append(overhead)
         #self.successes += successes
 
     def disable(self, evaluations, domain):

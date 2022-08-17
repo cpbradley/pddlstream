@@ -100,20 +100,20 @@ def dump_total_statistics(externals):
 def collate_instance_data(external):
     out = []
     for instance in external.instances.values():
-        print(instance)
-        print(instance.results_history)
-        print(instance.num_failures)
+        # print(instance)
+        # print(instance.results_history)
+        # print(instance.num_failures)
         for execution in instance.results_history:
             if not execution:
                 continue
-            print(execution)
+            # assert False
             data = {}
-            for ob in instance.input_objects:
-                print(type(ob))
-                if isinstance(ob, Object):
-                    print(f'Value: {ob.value}')
-                    print(f'Value Type: {type(ob.value)}')
-                    print(f'Ob: {ob}')
+            # for ob in instance.input_objects:
+            #     print(type(ob))
+            #     if isinstance(ob, Object):
+            #         print(f'Value: {ob.value}')
+            #         print(f'Value Type: {type(ob.value)}')
+            #         print(f'Ob: {ob}')
             data['inputs'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.input_objects]
             if 'fluent_facts' in dir(instance):
                 data['fluents'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.fluent_facts]
@@ -121,15 +121,19 @@ def collate_instance_data(external):
                 data['outputs'] = [obj.value if isinstance(obj, Object) else obj for obj in execution[0].output_objects]
             else:
                 data['outputs'] = []
-            data['success'] = 1
+            data['outcome'] = 1
+            data['costs'] = [execution[0].success_cost, 0.0]
+            data['label'] = [data['outcome']] + data['costs']
             out.append(data)
-        for _ in range(instance.num_failures):
+        for failure_cost in instance.failure_costs:
             data = {}
             data['inputs'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.input_objects]
             if 'fluent_facts' in dir(instance):
                 data['fluents'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.fluent_facts]
             data['outputs'] = []
-            data['success'] = 0
+            data['outcome'] = 0
+            data['costs'] = [0.0, failure_cost]
+            data['label'] = [data['outcome']] + data['costs']
             out.append(data)
     return out
 
