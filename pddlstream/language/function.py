@@ -36,11 +36,12 @@ class FunctionInfo(ExternalInfo):
         #self.order = 0
 
 class FunctionResult(Result):
-    def __init__(self, instance, value, optimistic=True):
+    def __init__(self, instance, value, optimistic=True, success_cost=0):
         super(FunctionResult, self).__init__(instance, opt_index=0, call_index=0, optimistic=optimistic)
         self.instance = instance
         self.value = value
         self._certified = None
+        self.success_cost = success_cost
         # TODO: could add empty output_objects tuple
     @property
     def certified(self):
@@ -98,7 +99,7 @@ class FunctionInstance(Instance):
         start_time = time.time()
         start_history = len(self.history)
         value = self._compute_output()
-        new_results = [self._Result(self, value, optimistic=False)]
+        new_results = [self._Result(self, value, optimistic=False, success_cost=time.time()-start_time)]
         new_facts = []
 
         if (value is not False) and verbose:

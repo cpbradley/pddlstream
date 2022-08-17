@@ -157,7 +157,7 @@ class StreamInfo(ExternalInfo):
 
 class StreamResult(Result):
     def __init__(self, instance, output_objects, opt_index=None,
-                 call_index=None, list_index=None, optimistic=True):
+                 call_index=None, list_index=None, optimistic=True, success_cost=0):
         super(StreamResult, self).__init__(instance, opt_index, call_index, optimistic)
         self.output_objects = tuple(output_objects)
         assert len(self.output_objects) == len(self.external.outputs)
@@ -165,6 +165,7 @@ class StreamResult(Result):
         self._mapping = None
         self._certified = None
         self._stream_fact = None
+        self.success_cost = success_cost
     @property
     def mapping(self):
         if self._mapping is None:
@@ -244,13 +245,13 @@ class StreamInstance(Instance):
 
     #########################
 
-    def get_result(self, output_objects, opt_index=None, list_index=None, optimistic=True):
+    def get_result(self, output_objects, opt_index=None, list_index=None, optimistic=True, success_cost=0):
         # TODO: rename to create_result because not unique
         # TODO: ideally would increment a flag per stream for each failure
         call_index = self.num_calls
         #call_index = self.successes # Only counts iterations that return results for complexity
         return self._Result(instance=self, output_objects=tuple(output_objects), opt_index=opt_index,
-                            call_index=call_index, list_index=list_index, optimistic=optimistic)
+                            call_index=call_index, list_index=list_index, optimistic=optimistic, success_cost=success_cost)
 
     def get_all_input_objects(self): # TODO: lazily compute
         return set(self.input_objects) | {o for f in self.fluent_facts for o in get_args(f)}
@@ -312,7 +313,7 @@ class StreamInstance(Instance):
         objects = [objects_from_values(output_values) for output_values in new_values]
         new_objects = list(filter(lambda o: o not in self.previous_outputs, objects))
         self.previous_outputs.update(new_objects) # Only counting new outputs as successes
-        new_results = [self.get_result(output_objects, list_index=list_index, optimistic=False)
+        new_results = [self.get_result(output_objects, list_index=list_index, optimistic=False, success_cost=time.time()-start_time)
                        for list_index, output_objects in enumerate(new_objects)]
         # print(f'success: {[r.is_successful() for r in new_results]}')
         if start_history <= len(self.history) - 1:
