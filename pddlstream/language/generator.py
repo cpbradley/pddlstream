@@ -59,6 +59,29 @@ def from_list_gen_fn(list_gen_fn):
     return list_gen_fn
 
 
+def from_tuple_fn(gen_fn):
+    def tuple_fn(*args, **kwargs):
+        arg_tuple = args
+        yield gen_fn(arg_tuple, **kwargs)
+    return from_fn(tuple_fn)
+
+
+def from_tuple_gen_fn(gen_fn):
+    def tuple_fn(*args, **kwargs):
+        arg_tuple = args
+        yield gen_fn(arg_tuple, **kwargs)
+    return from_gen_fn(tuple_fn)
+
+
+def from_tuple_sampler(sampler, max_attempts=INF):
+    def tuple_fn(*args, **kwargs):
+        attempts = count()
+        arg_tuple = args
+        while next(attempts) < max_attempts:
+            yield sampler(arg_tuple, **kwargs)
+    return from_gen_fn(tuple_fn)
+
+
 def from_gen_fn(gen_fn):
     return from_list_gen_fn(lambda *args, **kwargs: ([] if ov is None else [ov]
                                                      for ov in gen_fn(*args, **kwargs)))
