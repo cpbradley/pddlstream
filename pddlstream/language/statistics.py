@@ -203,12 +203,11 @@ def write_external_statistics(externals, verbose):
     write_pickle(filename, data)
     write_pickle(instances_filename, instances_data)
     if verbose:
-        print(len(instances_data))
         import sys
         print(sys.getsizeof(instances_data))
         print('Wrote:', filename)
         print('Wrote:', instances_filename)
-    print(instances_data)
+        # print(instances_data)
 
 def write_stream_statistics(externals, verbose):
     # TODO: estimate conditional to affecting history on skeleton
