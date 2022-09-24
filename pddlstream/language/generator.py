@@ -65,7 +65,7 @@ def from_tuple_fn(gen_fn):
 def from_tuple_gen_fn(gen_fn):
     def tuple_fn(*args, **kwargs):
         arg_tuple = args
-        yield gen_fn(arg_tuple, **kwargs)
+        return gen_fn(arg_tuple, **kwargs)
     return from_gen_fn(tuple_fn)
 
 

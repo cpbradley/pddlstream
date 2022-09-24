@@ -75,7 +75,7 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
                   initial_complexity=0, complexity_step=1, max_complexity=INF,
                   max_skeletons=INF, search_sample_ratio=0, bind=True, max_failures=0,
                   unit_efforts=False, max_effort=INF, effort_weight=None, reorder=True,
-                  visualize=False, verbose=True, **search_kwargs):
+                  visualize=False, verbose=True, data_gen_dir=None, **search_kwargs):
     """
     Solves a PDDLStream problem by first planning with optimistic stream outputs and then querying streams
     :param problem: a PDDLStream problem
@@ -241,8 +241,9 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
     })
     print('Summary: {}'.format(str_from_object(summary, ndigits=3))) # TODO: return the summary
 
-    # write_stream_statistics(externals, verbose)
-    write_external_statistics(externals, verbose)
+    write_stream_statistics(externals, verbose)
+    if data_gen_dir:
+        write_external_statistics(externals, verbose, data_gen_dir=data_gen_dir)
     return store.extract_solution()
 
 solve_focused = solve_abstract # TODO: deprecate solve_focused

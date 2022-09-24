@@ -46,18 +46,21 @@ def compute_plan_effort(stream_plan, **kwargs):
 
 # TODO: write to a "local" folder containing temp, data2, data3, visualizations
 
-def get_data_path(stream_name, instances=False):
-    data_dir = DATA_DIR.format(get_python_version())
+def get_data_path(stream_name, data_gen_dir=None, instances=False):
+    if data_gen_dir:
+        data_dir = data_gen_dir
+    else:
+        data_dir = DATA_DIR.format(get_python_version())
     if instances:
-        file_name = '{}_instances.pkl'.format(stream_name)
+        file_name = '{}-instances.pkl'.format(stream_name)
     else:
         file_name = '{}.pkl'.format(stream_name)
     return os.path.join(data_dir, file_name)
 
-def load_data(pddl_name, instances=False):
+def load_data(pddl_name, data_gen_dir=None, instances=False):
     if not LOAD_STATISTICS:
         return {}
-    filename = get_data_path(pddl_name, instances=instances)
+    filename = get_data_path(pddl_name, data_gen_dir, instances=instances)
     if not os.path.exists(filename):
         return {}
     #try:
@@ -168,7 +171,7 @@ def merge_data(external, previous_data):
     }
     # TODO: make an instance method
 
-def write_external_statistics(externals, verbose):
+def write_external_statistics(externals, verbose, data_gen_dir=None):
     if not externals:
         return
     if verbose:
@@ -176,7 +179,7 @@ def write_external_statistics(externals, verbose):
         dump_total_statistics(externals)
     pddl_name = externals[0].pddl_name # TODO: ensure the same
     previous_data = load_data(pddl_name)
-    previous_instances_data = load_data(pddl_name, instances=True)
+    previous_instances_data = load_data(pddl_name, data_gen_dir, instances=True)
     data = {}
     instances_data = {}
     for external in externals:
@@ -197,7 +200,7 @@ def write_external_statistics(externals, verbose):
     if not SAVE_STATISTICS:
         return
     filename = get_data_path(pddl_name)
-    instances_filename = get_data_path(pddl_name, instances=True)
+    instances_filename = get_data_path(pddl_name, data_gen_dir, instances=True)
     ensure_dir(filename)
     ensure_dir(instances_filename)
     write_pickle(filename, data)
