@@ -110,34 +110,39 @@ def collate_instance_data(external):
             if not execution:
                 continue
             # assert False
-            data = {}
+            datum = {}
             # for ob in instance.input_objects:
             #     print(type(ob))
             #     if isinstance(ob, Object):
             #         print(f'Value: {ob.value}')
             #         print(f'Value Type: {type(ob.value)}')
             #         print(f'Ob: {ob}')
-            data['inputs'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.input_objects]
+            datum['inputs'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.input_objects]
             if 'fluent_facts' in dir(instance):
-                data['fluents'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.fluent_facts]
-            if 'output_objects' in dir(execution[0]):
-                data['outputs'] = [obj.value if isinstance(obj, Object) else obj for obj in execution[0].output_objects]
+                datum['fluents'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.fluent_facts]
             else:
-                data['outputs'] = []
-            data['outcome'] = 1
-            data['costs'] = [execution[0].success_cost, 0.0]
-            data['label'] = [data['outcome']] + data['costs']
-            out.append(data)
+                datum['fluents'] = []
+            if 'output_objects' in dir(execution[0]):
+                datum['outputs'] = [obj.value if isinstance(obj, Object) else obj for obj in execution[0].output_objects]
+            else:
+                datum['outputs'] = []
+            datum['outcome'] = 1
+            datum['costs'] = [execution[0].success_cost, 0.0]
+            datum['label'] = [datum['outcome']] + datum['costs']
+            out.append(datum)
+
         for failure_cost in instance.failure_costs:
-            data = {}
-            data['inputs'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.input_objects]
+            datum = {}
+            datum['inputs'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.input_objects]
             if 'fluent_facts' in dir(instance):
-                data['fluents'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.fluent_facts]
-            data['outputs'] = []
-            data['outcome'] = 0
-            data['costs'] = [0.0, failure_cost]
-            data['label'] = [data['outcome']] + data['costs']
-            out.append(data)
+                datum['fluents'] = [obj.value if isinstance(obj, Object) else obj for obj in instance.fluent_facts]
+            else:
+                datum['fluents'] = []
+            datum['outputs'] = []
+            datum['outcome'] = 0
+            datum['costs'] = [0.0, failure_cost]
+            datum['label'] = [datum['outcome']] + datum['costs']
+            out.append(datum)
     return out
 
 def merge_data(external, previous_data):
@@ -206,8 +211,8 @@ def write_external_statistics(externals, verbose, data_gen_dir=None):
     write_pickle(filename, data)
     write_pickle(instances_filename, instances_data)
     if verbose:
-        import sys
-        print(sys.getsizeof(instances_data))
+        # import sys
+        # print(sys.getsizeof(instances_data)
         print('Wrote:', filename)
         print('Wrote:', instances_filename)
         # print(instances_data)
