@@ -128,6 +128,7 @@ def collate_instance_data(external):
                 datum['outputs'] = []
             datum['outcome'] = 1
             datum['costs'] = [execution[0].success_cost, 0.0]
+            datum['motion_cost'] = [0.0]
             datum['label'] = [datum['outcome']] + datum['costs']
             out.append(datum)
 
@@ -141,6 +142,7 @@ def collate_instance_data(external):
             datum['outputs'] = []
             datum['outcome'] = 0
             datum['costs'] = [0.0, failure_cost]
+            datum['motion_cost'] = [0.0]
             datum['label'] = [datum['outcome']] + datum['costs']
             out.append(datum)
     return out
