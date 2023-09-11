@@ -126,6 +126,7 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
     evaluations, goal_exp, domain, externals = parse_problem(
         problem, stream_info=stream_info, constraints=constraints,
         unit_costs=unit_costs, unit_efforts=unit_efforts)
+
     automatically_negate_externals(domain, externals)
     enforce_simultaneous(domain, externals)
     compile_fluent_streams(domain, externals)
@@ -204,6 +205,7 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
         ################
 
         if (stream_plan is INFEASIBLE) and (not eager_instantiator) and (not skeleton_queue) and (not disabled):
+            assert False
             break
         if not is_plan(stream_plan):
             print('No plan: increasing complexity from {} to {}'.format(complexity_limit, complexity_limit+complexity_step))
@@ -230,6 +232,22 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
             if len(skeleton_queue.skeletons) <= max_skeletons else INF
         if skeleton_queue.process(stream_plan, opt_plan, cost, complexity_limit, allocated_sample_time) is INFEASIBLE:
             break
+        
+        feedback = []
+        for ex in externals:
+            for instance in ex.instances.values():
+                if not instance.history or ex.name not in stream_info:
+                    continue
+                print('history')
+                print(instance.history)
+                for stream_result in instance.history:
+                    print(stream_result.values)
+                feedback_fn = stream_info[ex.name].feedback_fn
+                feedback.extend(feedback_fn(*instance.get_input_values(), instance.get_fluent_values()))
+        
+        from pddlstream.algorithms.algorithm import evaluations_from_init
+        feedback_evaluations = evaluations_from_init(feedback)
+        evaluations.update(feedback_evaluations)
 
     ################
 

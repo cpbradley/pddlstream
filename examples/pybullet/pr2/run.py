@@ -81,8 +81,9 @@ def extract_point2d(v):
     raise ValueError(v.stream)
 
 def opt_move_cost_fn(t):
-    q1, q2 = t.values
-    distance = get_distance(extract_point2d(q1), extract_point2d(q2))
+    # return 1
+    # q1, q2 = t.values
+    # distance = get_distance(extract_point2d(q1), extract_point2d(q2))
     #return BASE_CONSTANT + distance / BASE_VELOCITY
     return 1
 
