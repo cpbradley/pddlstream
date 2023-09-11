@@ -141,7 +141,7 @@ class FluentOutput(object): # TODO: unify with OptimizerOutput
 
 class StreamInfo(ExternalInfo):
     def __init__(self, opt_gen_fn=None, negate=False, simultaneous=False,
-                 verbose=True, **kwargs): # TODO: set negate to None to express no user preference
+                 verbose=True, feedback_fn=None, **kwargs): # TODO: set negate to None to express no user preference
         # TODO: could change frequency/priority for the incremental algorithm
         # TODO: maximum number of evaluations per iteration of adaptive
         super(StreamInfo, self).__init__(**kwargs)
@@ -150,6 +150,7 @@ class StreamInfo(ExternalInfo):
         self.negate = negate
         self.simultaneous = simultaneous
         self.verbose = verbose
+        self.feedback_fn = feedback_fn
         # TODO: make this false by default for negated test streams
         #self.order = 0
 
