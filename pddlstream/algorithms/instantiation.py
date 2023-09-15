@@ -75,6 +75,11 @@ class Instantiator(Sized): # Dynamic Instantiator
 
     def pop_stream(self):
         priority, instance = heappop(self.queue)
+        try:
+            print('popping stream ', instance.external.name)
+        except Exception as ex:
+            print('popping function')
+            print(ex)
         return instance
 
     def min_complexity(self):

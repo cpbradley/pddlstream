@@ -370,6 +370,7 @@ class StreamInstance(Instance):
 
     def next_optimistic(self):
         if self.enumerated or self.disabled:
+            print('enumerated, disabled: ', self.enumerated, self.disabled)
             return []
         opt_gen = self._create_opt_generator(self.opt_index)
         # TODO: how do I distinguish between real and not real verifications of things?

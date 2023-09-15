@@ -21,8 +21,10 @@ def get_steps_from_stream(stream_plan, step_from_fact, node_from_atom):
 
 def get_fluent_instance(external, input_objects, state):
     import pddl
+    print('problem state: ', state)
     fluent_facts = map(fact_from_fd, filter(
         lambda f: isinstance(f, pddl.Atom) and (f.predicate in external.fluents), state))
+    print('fluent facts: ', list(fluent_facts))
     return external.get_instance(input_objects, fluent_facts=fluent_facts)
 
 def convert_fluent_streams(stream_plan, real_states, action_plan, step_from_fact, node_from_atom):
@@ -42,6 +44,8 @@ def convert_fluent_streams(stream_plan, real_states, action_plan, step_from_fact
         if isinstance(result, FunctionResult) or (result.opt_index != 0) or (not external.is_fluent):
             static_plan.append(result)
             continue
+
+        print('\n\nFound fluent in stream plan!!')
         if outgoing_edges[result]:
             # No way of taking into account the binding of fluent inputs when preventing cycles
             raise NotImplementedError('Fluent stream is required for another stream: {}'.format(result))
@@ -61,6 +65,7 @@ def convert_fluent_streams(stream_plan, real_states, action_plan, step_from_fact
                 instance.var_mapping = {p: output_mapping.get(v, v)
                                         for p, v in instance.var_mapping.items()}
             new_instance = get_fluent_instance(external, result.instance.input_objects, real_states[state_index])
+            print(new_instance.external.name, '\n\n')
             # TODO: handle optimistic here
             new_result = new_instance.get_result(new_output_objects, opt_index=result.opt_index)
             fluent_plan.append(new_result)

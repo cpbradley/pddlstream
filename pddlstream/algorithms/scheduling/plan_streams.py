@@ -380,4 +380,6 @@ def plan_streams(evaluations, goal_expression, domain, all_results, negative, ef
         # TODO: handle deferred streams
         assert all(isinstance(action, Action) for action in opt_plan.action_plan)
         opt_plan.action_plan[:] = temporal_plan
+
+    print('Stream plan: ', stream_plan)
     return OptSolution(stream_plan, opt_plan, cost)

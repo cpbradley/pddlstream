@@ -32,7 +32,9 @@ def is_refined(stream_plan):
 ##################################################
 
 def optimistic_process_instance(instantiator, instance, verbose=False):
+    print("  optimistic process")
     for result in instance.next_optimistic():
+        print("  result: ", result)
         if verbose:
             print(result) # TODO: make a debug tools that reports the optimistic streams
         new_facts = False
@@ -40,6 +42,7 @@ def optimistic_process_instance(instantiator, instance, verbose=False):
         for fact in result.get_certified():
             new_facts |= instantiator.add_atom(evaluation_from_fact(fact), complexity)
         if isinstance(result, FunctionResult) or new_facts:
+            print("  yield: ", result)
             yield result
 
 def prune_high_effort_streams(streams, max_effort=INF, **effort_args):
