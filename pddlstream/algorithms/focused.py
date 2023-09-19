@@ -244,6 +244,10 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
                     print(stream_result.values)
                 feedback_fn = stream_info[ex.name].feedback_fn
                 feedback.extend(feedback_fn(*instance.get_input_values(), instance.get_fluent_values()))
+
+                instance.enable(evaluations, domain)
+                ex.instances = {}
+
         
         from pddlstream.algorithms.algorithm import evaluations_from_init
         feedback_evaluations = evaluations_from_init(feedback)
