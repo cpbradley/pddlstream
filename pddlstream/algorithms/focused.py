@@ -239,7 +239,7 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
                 if not instance.history or ex.name not in stream_info:
                     continue
                 feedback_fn = stream_info[ex.name].feedback_fn
-                feedback_symbols = feedback_fn(*instance.get_input_values(), instance.get_fluent_values())
+                feedback_symbols = feedback_fn(*instance.get_input_values(), fluents=instance.get_fluent_values())
                 feedback.extend(feedback_symbols)
                 if len(feedback_symbols) > 0:
                     instance.enable(evaluations, domain)
