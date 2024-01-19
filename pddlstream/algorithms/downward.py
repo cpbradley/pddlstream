@@ -65,7 +65,9 @@ from pddl_parser.parsing_functions import parse_domain_pddl, parse_task_pddl, \
     parse_condition, check_for_duplicates
 sys.argv = original_argv
 
-TEMP_DIR = 'temp/'
+import multiprocessing
+def get_temp_dir():
+    return '/tmp/temp-' + str(id(multiprocessing.current_process())) + '/'
 TRANSLATE_OUTPUT = 'output.sas'
 SEARCH_OUTPUT = 'sas_plan'
 SEARCH_COMMAND = 'downward --internal-plan-file {} {} < {}'
@@ -322,7 +324,7 @@ def get_problem(evaluations, goal_exp, domain, unit_costs=False):
     problem_pddl = None
     if USE_FORBID:
         problem_pddl = get_problem_pddl(evaluations, goal_exp, domain.pddl, temporal=False)
-    write_pddl(domain.pddl, problem_pddl, temp_dir=TEMP_DIR)
+    write_pddl(domain.pddl, problem_pddl)
     return Problem(task_name=domain.name, task_domain_name=domain.name,
                    objects=sorted(typed_objects, key=lambda o: o.name),
                    task_requirements=pddl.tasks.Requirements([]), init=init, goal=goal,
@@ -451,8 +453,7 @@ def run_search(temp_dir, planner=DEFAULT_PLANNER, max_planner_time=DEFAULT_MAX_T
     #except subprocess.CalledProcessError as e:
     #    print(e)
 
-    #temp_path = temp_dir
-    temp_path = os.path.join(os.getcwd(), TEMP_DIR) # TODO: temp dir?
+    temp_path = get_temp_dir()
     for filename in os.listdir(temp_path):
         if filename.startswith(SEARCH_OUTPUT):
             safe_remove(os.path.join(temp_path, filename))
@@ -506,7 +507,9 @@ def parse_solutions(temp_path, plan_files):
             best_plan, best_cost = plan, cost
     return best_plan, best_cost
 
-def write_pddl(domain_pddl=None, problem_pddl=None, temp_dir=TEMP_DIR):
+def write_pddl(domain_pddl=None, problem_pddl=None, temp_dir=None):
+    if temp_dir is None:
+        temp_dir = get_temp_dir()
     clear_dir(temp_dir)
     domain_path = os.path.join(temp_dir, DOMAIN_INPUT)
     if domain_pddl is not None:

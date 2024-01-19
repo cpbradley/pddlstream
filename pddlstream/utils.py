@@ -75,15 +75,18 @@ def mkdir(d):
 def ensure_dir(f):
     d = os.path.dirname(f)
     if not os.path.exists(d):
+        print("making: ", d)
         os.makedirs(d)
 
 
 def safe_rm_dir(d):
     if os.path.exists(d):
+        print("removing: ", d)
         shutil.rmtree(d)
 
 
 def clear_dir(d):
+    print("dir: ", d)
     safe_rm_dir(d)
     ensure_dir(d)
 

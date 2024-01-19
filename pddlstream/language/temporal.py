@@ -10,7 +10,7 @@ import traceback
 
 from collections import namedtuple
 
-from pddlstream.algorithms.downward import TEMP_DIR, DOMAIN_INPUT, PROBLEM_INPUT, make_effects, \
+from pddlstream.algorithms.downward import get_temp_dir, DOMAIN_INPUT, PROBLEM_INPUT, make_effects, \
     parse_sequential_domain, get_conjunctive_parts, write_pddl, make_action, make_parameters, make_object, fd_from_fact, Domain, make_effects
 from pddlstream.language.constants import DurativeAction, Fact, Not
 from pddlstream.utils import INF, ensure_dir, write, user_input, safe_rm_dir, read, elapsed_time, find_unique, safe_zip
@@ -641,7 +641,7 @@ def solve_tfd(domain_pddl, problem_pddl, planner=TFD_OPTIONS, max_planner_time=6
 
     start_time = time.time()
     domain_path, problem_path = write_pddl(domain_pddl, problem_pddl)
-    plan_path = os.path.join(TEMP_DIR, PLAN_FILE)
+    plan_path = os.path.join(get_temp_dir(), PLAN_FILE)
     #assert not actions, "There shouldn't be any actions - just temporal actions"
 
     paths = [os.path.join(os.getcwd(), p) for p in (domain_path, problem_path, plan_path)]
@@ -657,12 +657,13 @@ def solve_tfd(domain_pddl, problem_pddl, planner=TFD_OPTIONS, max_planner_time=6
     # TODO: returns an error when no plan was found
     # TODO: close any opened resources
 
-    temp_path = os.path.join(os.getcwd(), TEMP_DIR)
+    #temp_path = os.path.join(os.getcwd(), get_temp_dir())
+    temp_path = get_temp_dir()
     plan_files = sorted(f for f in os.listdir(temp_path) if f.startswith(PLAN_FILE))
     print('Plans:', plan_files)
     best_plan, best_makespan = parse_plans(temp_path, plan_files)
     #if not debug:
-    #    safe_rm_dir(TEMP_DIR)
+    #    safe_rm_dir(get_temp_dir())
     print('Makespan: ', best_makespan)
     print('Time:', elapsed_time(start_time))
 

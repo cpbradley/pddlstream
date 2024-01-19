@@ -12,6 +12,7 @@ from pddlstream.utils import INF, read_pickle, ensure_dir, write_pickle, get_pyt
 LOAD_STATISTICS = True
 SAVE_STATISTICS = True
 
+import multiprocessing
 DATA_DIR = 'statistics/py{:d}/'
 DEFAULT_SEARCH_OVERHEAD = 1e2 # TODO: update this over time
 EPSILON = 1e-6
@@ -50,7 +51,8 @@ def get_data_path(stream_name, data_gen_dir=None, instances=False):
     if data_gen_dir:
         data_dir = data_gen_dir
     else:
-        data_dir = DATA_DIR.format(get_python_version())
+        # TODO: for output data, using process id is not good enough because we can't recover it later
+        data_dir = f"statistics/py3.10/data-{str(id(multiprocessing.current_process()))}/"
     if instances:
         file_name = '{}-instances.pkl'.format(stream_name)
     else:
