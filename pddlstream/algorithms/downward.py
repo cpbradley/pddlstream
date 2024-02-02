@@ -67,7 +67,7 @@ sys.argv = original_argv
 
 import multiprocessing
 def get_temp_dir():
-    return '/tmp/temp-' + str(id(multiprocessing.current_process())) + '/'
+    return '/tmp/temp-' + str(multiprocessing.current_process().pid) + '/'
 TRANSLATE_OUTPUT = 'output.sas'
 SEARCH_OUTPUT = 'sas_plan'
 SEARCH_COMMAND = 'downward --internal-plan-file {} {} < {}'

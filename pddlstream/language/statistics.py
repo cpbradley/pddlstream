@@ -52,7 +52,7 @@ def get_data_path(stream_name, data_gen_dir=None, instances=False):
         data_dir = data_gen_dir
     else:
         # TODO: for output data, using process id is not good enough because we can't recover it later
-        data_dir = f"statistics/py3.10/data-{str(id(multiprocessing.current_process()))}/"
+        data_dir = f"statistics/py3.10/data-{str(multiprocessing.current_process().pid)}/"
     if instances:
         file_name = '{}-instances.pkl'.format(stream_name)
     else:
