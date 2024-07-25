@@ -245,10 +245,17 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
                     instance.enable(evaluations, domain)
                     ex.instances = {}
 
+    
+        if len(feedback) > 0:
+            return False, feedback
+
         
-        from pddlstream.algorithms.algorithm import evaluations_from_init
-        feedback_evaluations = evaluations_from_init(feedback)
-        evaluations.update(feedback_evaluations)
+        #print("feedback in pddlstream: ", feedback)        
+        #from pddlstream.algorithms.algorithm import evaluations_from_init
+        #feedback_evaluations = evaluations_from_init(feedback)
+        #print("feedback evaluations: ", feedback_evaluations)        
+        #evaluations.update(feedback_evaluations)
+        #print("evaluations: ", evaluations)
 
     ################
 
@@ -263,7 +270,7 @@ def solve_abstract(problem, constraints=PlanConstraints(), stream_info={}, repla
     write_stream_statistics(externals, verbose)
     if data_gen_dir:
         write_external_statistics(externals, verbose, data_gen_dir=data_gen_dir)
-    return store.extract_solution()
+    return True, store.extract_solution()
 
 solve_focused = solve_abstract # TODO: deprecate solve_focused
 
